@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Registration Form and saving Form Data to Bootstrap table</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> 
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"> </script>
+  <script type="text/javascript">
+    (function()
+    {
+        /*create an object named Applicant that has all the form fields as member variables*/
+        var Applicant = {
+            fname: "",
+            lname: "",
+            age: 0,
+            phonenum: "",
+            email: ""
+        };
+
+        /*create an object storageLogic which has a saveItem member function and loadData member function*/
+        var storageLogic = {
+
+        	/*saveItem is a function which populates the user inputs in the form to the javascript Applicant object*/
+            saveItem: function (){
+                var lscount = localStorage.length;
+                var inputs = document.getElementsByClassName("form-control");
+                Applicant.fname = inputs[0].value; //first input element of form is populated to fname member of Applicant object  
+                Applicant.lname = inputs[1].value; // second input element of form is populated to lname member of Applicant object
+                Applicant.age = inputs[2].value; //.. and so on
+                Applicant.phonenum = inputs[3].value;
+                Applicant.email = inputs[4].value;
+                
+                //storing the Applicant object to localStorage
+                localStorage.setItem("Applicant_" + lscount, JSON.stringify(Applicant));  //first entered form data is stored to localStorage item Applicant_1 etc.
+                //page refreshed
+                location.reload();
+
+            },
+
+            /*loadData is a function which loads the values from localStorage ,if any, and renders it into the bootstrap table*/
+            loaddata: function() {
+                //get length of localStorage. The number of Applicant objects in localStorage
+                var datacount = localStorage.length;
+                if (datacount > 0)
+                {
+                	//if localStorage has any elements then create a bootstrap table in dvContainer
+                	//In a string called 'render', we will constitute the HTML for rendering the bootstrap tble with the table data having the values stored in Applicant object- retrieved from localStorage
+                    var render = "<table class='table table-bordered'>"; //bordered table in bootstrap
+                    render += "<tr><th>First Name</th><th>Last Name</th><th>Age</th>" + 
+                    "<th>Phone Number</th><th>Email</th>";
+                    for (i=0; i < datacount; i++) { //for each Applicant object do
+                        var key = localStorage.key(i); // JSON stores as key-item pairs e.g. of key is 'fname','lname','age' etc
+                        var applicant = localStorage.getItem(key); //this will get the value of the item i.e. actual values input by user in the form
+                        var data = JSON.parse(applicant); //parse JSON data to retrieve the data elements
+
+                        render += "<tr><td>" + data.fname + "</td><td>" + data.lname + "</td>";
+                        render += "<td>" + data.age + "</td>";
+                        render += "<td>" + data.phonenum + "</td>";
+                        render += "<td>" + data.email + "</td>";
+                    }
+                    render += "</table>";
+                    var newTable = document.getElementById("dvContainer");
+                    newTable.innerHTML = render;
+                }
+            }
+        };
+        window.onload = function() {
+            storageLogic.loaddata(); //at first, loading the existing data in localStorage to the front end table 
+      var btnsubmit = document.getElementById('btnsubmit');
+      btnsubmit.addEventListener('click', storageLogic.saveItem);// attaching the saveItem function to the Submit button. Onclick of Submit, saveItem() is executed
+        };
+    })();
+  </script>
+</head>
+<body>
+<!--The bootstrap form-->
+<h2>Registration Form</h2>
+    <div class="container">
+      <form role="form">
+        <div class="form-group">
+            <label for="fname">First Name:</label>
+            <input type="text" class="form-control" id="fname" placeholder="First Name">
+        </div>
+        <div class="form-group">
+            <label for="lname">Last Name:</label>
+            <input type="text" class="form-control" id="lname" placeholder="Last Name">
+        </div>
+        <div class="form-inline">
+            <label for="age">Age: <input type="text" class="form-control" id="age" placeholder="Age"></label>
+            <label for="phone">Phone Number: <input type="text" class="form-control" id="phonenum" placeholder="Phone Number"></label>
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" class="form-control" id="email" placeholder="Enter email">
+        </div>
+          <input id="btnsubmit" type="button" value="Submit" class="btn btn-success"/>
+
+      </form>
+    </div>
+    <div id="dvContainer" class="conatiner">
+    </div>
+
+</body>
+</html>
